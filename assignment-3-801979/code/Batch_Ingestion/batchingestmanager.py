@@ -9,9 +9,9 @@ with open('./config_user.json', "r") as read_file:
 tenants = config['tenants']
 while True:
     time.sleep(30)
-    clientInputDir = "/home/matteo/Desktop/BigDataPlatform2/assignment-2-801979/data/StagingData"
+    clientInputDir = "/home/matteo/Desktop/BigDataPlatform2/assignment-3-801979/data/StagingData"
     # TODO: relative path
-    tenantsappdir = "/home/matteo/Desktop/BigDataPlatform2/assignment-2-801979/code/Batch_Ingestion/clientbatchingestapps/"
+    tenantsappdir = "/home/matteo/Desktop/BigDataPlatform2/assignment-3-801979/code/Batch_Ingestion/clientbatchingestapps/"
     files = []
     for dir in os.walk(clientInputDir):
         if dir[0] != clientInputDir:

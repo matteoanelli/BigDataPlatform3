@@ -3,22 +3,22 @@ import subprocess
 
 command = sys.argv[1]
 # if command == 'run_all':
-#     with open('assignment-2-801979/code/Near-realtime_ingestion/clientstreamingingestapp', "r") as read_file:
+#     with open('assignment-3-801979/code/Near-realtime_ingestion/clientstreamingingestapp', "r") as read_file:
 #         config = json.load(read_file)
 #     tenants = config['tenants']
 #
-#     tenantsappdir = "assignment-2-801979/code/Near-realtime_ingestion/clientstreamingingestapp/"
+#     tenantsappdir = "assignment-3-801979/code/Near-realtime_ingestion/clientstreamingingestapp/"
 #     for tenant in tenants:
 #         os.system('python ' + tenantsappdir + 'clientstreamingestapp_' + tenant['tenant_id'] + '.py ' + tenant['MONGO_URL'])
 
 if command == 'run':
     new_pid = 0
     tenant = sys.argv[2]
-    with open('/home/matteo/Desktop/BigDataPlatform2/assignment-2-801979/code/Near-realtime_ingestion/API/config_user.json', "r") as read_file:
+    with open('/home/matteo/Desktop/BigDataPlatform2/assignment-3-801979/code/Near-realtime_ingestion/API/config_user.json', "r") as read_file:
         config = json.load(read_file)
     tenants =  config['tenants']
     print(tenants)
-    tenantsappdir = "assignment-2-801979/code/Near-realtime_ingestion/clientstreamingingestapp/"
+    tenantsappdir = "assignment-3-801979/code/Near-realtime_ingestion/clientstreamingingestapp/"
     mongo_uri = None
     for temp in tenants:
         if temp['tenant_id'] == tenant:
