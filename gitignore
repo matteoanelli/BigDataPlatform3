@@ -1,0 +1,9 @@
+venv
+.idea
+out
+gen
+*/excluded
+*.log
+*.exe
+target
+*.iml
