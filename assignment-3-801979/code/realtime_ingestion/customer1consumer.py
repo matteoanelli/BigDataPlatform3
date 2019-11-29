@@ -2,8 +2,8 @@
 import pika, os, json, sys
 
 
-# url = 'amqp://lglizjgp:ZHTrNmxKUo5sjiTgux_OOvmvSfnJUvao@moose.rmq.cloudamqp.com/lglizjgp'
-url = 'amqp://guest:guest@localhost/'
+url = 'amqp://lglizjgp:ZHTrNmxKUo5sjiTgux_OOvmvSfnJUvao@moose.rmq.cloudamqp.com/lglizjgp'
+# url = 'amqp://guest:guest@localhost/'
 params = pika.URLParameters(url)
 connection = pika.BlockingConnection(params)
 channel = connection.channel() # start a channel

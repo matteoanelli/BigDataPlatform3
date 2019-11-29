@@ -4,7 +4,8 @@ from time import sleep
 import csv
 from datetime import datetime
 
-RABBITMQ_URI = 'amqp://guest:guest@localhost/'
+# RABBITMQ_URI = 'amqp://guest:guest@localhost/'
+RABBITMQ_URI = 'amqp://lglizjgp:ZHTrNmxKUo5sjiTgux_OOvmvSfnJUvao@moose.rmq.cloudamqp.com/lglizjgp'
 queue = 'customer1queue'
 
 params = pika.URLParameters(RABBITMQ_URI)

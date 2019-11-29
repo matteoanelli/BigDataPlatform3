@@ -8,19 +8,20 @@
 * The __PULocationID__, TLC Taxi Zone in which the taximeter was engaged.
 * The __DOLocationID__  TLC Taxi Zone in which the taximeter was disengaged.
 
-Some analytics has been defined for the customer:
+    Some analytics has been defined for the customer:
 
-i) Streaming analytics that, in a defined period, counts the number of taxies engaged in a specific taxi zone. Thus, the taxi provider knows where there is more request of taxis in a specific time, or a threshold can be set and when the number of taxis is grater than this threshold the taxi company can be warned, as a result, it can organize its taxi fleet accordingly. Another analytics can be done by counting the number of Group rides (Information that can be found inside __RateCodeID__) so that, in a specific amount of time. If the number of a group trips is grater than usual the vendors can locate their "XL" Taxis.
+i) Streaming analytics that, in a defined period, counts the number of taxies engaged in a specific taxi zone. Thus, the taxi provider knows where there is more request of taxis in a specific time, or a threshold can be set and when the number of taxis is greater than this threshold the taxi company can be warned, as a result, it can organize its taxi fleet accordingly. Another analytics can be done by counting the number of Group rides (Information that can be found inside __RateCodeID__) so that, in a specific amount of time. If the number of group trips is greater than usual the vendors can locate their "XL" Taxis.
 
 ii) Batch analytics that, given the output from the streaming analytics can provide daily, weekly or monthly statistics to the vendors. For example, streaming analytics is agglomerating based on specific taxi areas the number of taxis that have been engaged per hour. Hence, the most frequented area per day can be calculated.
 
-2\. The customer will send the data to the message broker which becomes the data stream sources. The taxi record is sent simulating a stream as in a real case scenario:
+
+2\. The customer will send the data to the message broker which becomes the data stream source. The taxi record is sent simulating a stream as in a real case scenario:
 
 i) The analytics is handled in keyed data streams, the records stream is keyed by __PULocationID__ dividing the data in different logical streams so that a tumbling window can be set. Furthermore, the keyed streams allow the computation to be performed in parallel in multiple tasks since each keyed stream can be processed independently. 
 
-ii) In our use case, the analytics are estimated values, they do not need to be extremely precise as well as the scenario is not critic. So, it is not needed that the system check for missing messages. As a result, the selected delivery guarantee is  __at-least-once__ that means for each messages handed to the system potentially multiple attempts are made at delivering it, such that at least one succeeds. It imply to keep state at the sending end and having an acknowledgement mechanism at the receiving end. This is easy to implement in our architecture since the connector between implemented RabbitMQ and Flink has already implemented mechanism to menage it.
+ii) In our use case, the analytics are estimated values, they do not need to be extremely precise as well as the scenario is not a critic. So, it is not needed that the system check for missing messages. As a result, the selected delivery guarantee is  __at-least-once__ which means for each messages handed to the system potentially multiple attempts are made at delivering it, such that at least one succeeds. It imply to keep the tstate at the sending end and having an acknowledgment mechanism at the receiving end. This is easy to implement in our architecture since the connector between implemented RabbitMQ and Flink has already implemented a mechanism to manage it.
 
-  To point out, __at-most-once__ and __exactly-once__ could be suitable and the connector support them as well. 
+  To point out, __at-most-once__ and __exactly-once__ could be suitable and the connector supports them as well. 
   The at-most-once guarantees higher performance but it is not be chosen in order to make the architecture more robust and the analytics more precise. On the other hand, as mentioned before, the application is not critic as well as the analytics is an estimated value, as a result, the exactly-once is not necessary.
   
 3\) 
@@ -33,14 +34,14 @@ An example is the following: the window start at 10:00 am and based on the __PUL
 4\)
 The main performance metric in our case is the __throughput__ that calculates how many events can be processed per second. Thus, the goal is to maximize it. Pushing large amounts of data through the pipeline is crucial as the data rates grow.
 
-To point out, given that tumbling window is used as well as the analytics consist of agglomerating the input data. The latency is not a meaningful measure in our use case. For example a record in input to the window can wait up to 1 hour to be actually processed. Clearly, this is not a valuable measure of the processing time.
+To point out, given that a tumbling window is used as well as the analytics consist of agglomerating the input data. The latency is not a meaningful measure in our use case. For example, a record in input to the window can wait up to 1 hour to be actually processed. This is not a valuable measure of the processing time.
 
-5\) Follwing a figure that represent the design of the architecture, limited to ou  use case:
+5\) Following a figure that represents the design of the architecture, limited to our  use case:
 ![](basicDesign.png)
 Figure: Basic schema of the implemented architecture
 
 
-__Customer data source__, is the original case the data source is record generated by the NYC yellow taxis. As a result, a streaming of messages is generated from the customer and pushed to the message broker. 
+__Customer data source__, is the original case the data source is record generated by the NYC yellow taxis. As a result, streaming of messages is generated from the customer and pushed to the message broker. 
 
 In the implementation, the streaming is simulated reading line by line a CSV file and a python producer ingest the message to the broker. 
 
@@ -48,28 +49,29 @@ __mysimbdp Message broker__, the message broker receives messages from the diffe
 
 __mysimdb Streaming computing service__, the tool selected to manage the streaming analytics is Apache Flink. This implies that the customers have to implement their __customerstreamingapp__ that works on top of Flink. Flink has been selected since it is made to deal with event data as well as it already provides different useful features: it provides a windowing system to use during the analytics as well as it manages itself parallelism. Furthermore, it has already implemented a connector with all the other technologies used in the architecture. 
 
-__customerstreamapp__, these are all the applications that the customers can implement to do any kind of analytics on the respective data streaming. The __customerstreamapp__ along with __mysimdb Streaming computing service__ guarantee that after the analytics has been computed the results can be sent back to the message broker where the customer can get them listening to a different result queue. Besides, the streaming analytics results can be stored to a CSV file for future usages. Thus, the batch processing can be made on top of the streaming analytics results stored inside the data sink.
+__customerstreamapp__, these are all the applications that the customers can implement to do any kind of analytics on the respective data streaming. The __customerstreamapp__ along with __mysimdb Streaming computing service__ guarantee that after the analytics has been computed the results can be sent back to the message broker where the customer can get them listening to a different result queue. Besides, the streaming analytics results can be stored in a CSV file for future usages. Thus, the batch processing can be made on top of the streaming analytics results stored inside the data sink.
 
 __mysqlcoredbms__, the data sink has been implemented using MongoDB Atlas. MongoDB Atlas provides a cloud solution where a cluster of 3 nodes have been created so that all the data are stored and replicated.
 
-Finally, __customerIngestApp__ is an application provided by the customer that read the results of the CSV file and ingest them into MongoDB.
+Finally, __customerIngestApp__ is an application provided by the customer that reads the results of the CSV file and ingests them into MongoDB.
 
-A bit more about the customer side, on top of the __customerstreamapp__ and __customerIngestApp__ , it has to build a producer to ingest the messages to our message broker as well as it has to run a consumer application to read the result messages that are on the specific result queue. The last part could be provided by the architecture as well. It can be a webapp where all the result of the customer are shown so that the customer can get insight directly from the webapp and ask for the data if needed.
+A bit more about the customer side, on top of the __customerstreamapp__ and __customerIngestApp__ , it has to build a producer to ingest the messages to our message broker as well as it has to run a consumer application to read the result messages that are on the specific result queue. The last part could be provided by the architecture as well. It can be a web app where all the results of the customer are shown so that the customer can get insight directly from the web app and ask for the data if needed.
 
-Furthemore, the architecture can be scaled in order to deal with multi-tenancy and each customer can have its data sources as well.
+Furthermore, the architecture can be scaled in order to deal with multi-tenancy and each customer can have its data sources as well.
 
 ![](design(2).png)
-Figure that show the architecture with multiple customer.
+Figure that shows the architecture with multiple customers.
 
-In order to store the analytics to the dataset some concept and components designed and implemented in the previous assignment has been used. The concept is that the output streaming analytics is not directly stored inside the data sink, before the analytics are stored inside CSV that are located in a staging directory. This is mainly do to for reducing the number of call to the data set.
+In order to store the analytics to the dataset, some concept and components designed and implemented in the previous assignment have been used. The concept is that the output streaming analytics is not directly stored inside the data sink before the analytics are stored inside CSV that is located in a staging directory. This is mainly done to reducing the number of calls to the data set.
 
-The component that are re-utilized to implement the analytics ingestion are the following:
+The components that are re-utilized to implement the analytics ingestion are the following:
 
 __Staging Data__  where the CSV files are located.
 
-__BatchManager__ that forward the CSV files to the correct customer batch ingestion app when needed.
+__BatchManager__ that forwards the CSV files to the correct customer batch ingestion app when needed.
 
 __CustomerBatchIngestionApp__ that are app coded by the customer to store the analytics inside the data sink. They read the different CSV files, convert the data and ingest them to __mysqlcoredbms__.
+
 
 
 ## Part 2 - Implementation of streaming analytics
@@ -92,13 +94,13 @@ __CustomerBatchIngestionApp__ that are app coded by the customer to store the an
 * improvement_surcharge
 * total_amount
 A better explanation of each field is provided [here](https://data.cityofnewyork.us/api/views/t29m-gskq/files/89042b9b-8280-4339-bda2-d68f428a7499?download=true&filename=data_dictionary_trip_records_yellow.pdf)
-In the simulation the record are read form a CSV file and ingested to the message broker one by one. Then the __customerstreamapp__  read the messages from the specific queue. Each record before it has been send to the message broker is shaped as string with commas dividing the different fields. Following an example of the message sent by the producer.
+In the simulation, the records are read form a CSV file and ingested to the message broker one by one. Then the __customerstreamapp__  read the messages from the specific queue. Each record before it has been sending to the message broker is shaped as string with commas dividing the different fields. Following an example of the message sent by the producer.
 ```
 "1,02/27/2018 02:37:02 PM,02/27/2018 02:43:37 PM,1,1.1,1,N,161,234,1,6.5,0,0.5,2.15,0,0.3,9.45"
 ```
-Moreover, during the queuing process the data are serialized. Thus, the __customerstreamapp__ first has to deserialized them in order to recreate the different input fields of the report.
+Moreover, during the queuing process, the data are serialized. Thus, the __customerstreamapp__ first has to deserialize them in order to recreate the different input fields of the report.
 
-Once the entries have been deserialized, the analytics has been computed. The analytics, as said before, split the stream by __PULLocation__ using the key_bay as well as it filter out all the data that are not needed. Then, eventually, it compute the analytics and count the number of records for each window.
+Once the entries have been deserialized, the analytics has been computed. The analytics, as said before, split the stream by __PULLocation__ using the key_bay as well as it filters out all the data that are not needed. Then, eventually, it computes the analytics and counts the number of records for each window.
 The field kept and generated are the following:
 * PULocationID
 * number_of_taxi (The computed analytics)
@@ -116,34 +118,41 @@ The output has to be sent to the queue of the customer as well as it might be st
 }
 ```
 
-To sum up, the client has a producer that sends to the assigned queue records as massages (serialized) in string format (python RabbitMQ producer), the message broker queue the input, then the customerstreamapp (Java application) consumes the messages, it maps the string message in different field, it filter them then before process the the data are serialized again. it process them and eventually it deserializes and send back as JSON file the analytics to the result queue. Finally, a client consumer (python RabbitMQ consumer) read them. 
+To sum up, the client has a producer that sends to the assigned queue records as massages (serialized) in string format (python RabbitMQ producer), the message broker queue the input, then the customerstreamapp (Java application) consumes the messages, it maps the string message in different field, it filters them then before process the data are serialized again. it processes them and eventually, it deserializes and sends back as JSON file the analytics to the result queue. Finally, a client consumer (python RabbitMQ consumer) read them. 
 
-2. The main logic for processing records  inside __custoerstreamapp__ in the implementation is to split the stream in logical streams  using the keyby feature provided by Flink besed on the __PULLocation__ field , create a tumbling time window of 1 hour so that the data are grouped in chunks. Furthermore, the number of records for each chunks is calculated. 
+2\. The main logic for processing records inside __custoerstreamapp__ in the implementation is to split the stream in logical streams using the keyby feature provided by Flink based on the __PULLocation__ field, create a tumbling time window of 1 hour so that the data are grouped in chunks. Furthermore, the number of records for each chunks is calculated. 
 
-    More precisely, the customerstreamapp receives messages from the message broker as string. First it deserialize them as well as it filter out the data that are not needed for the analytics. Then the keyby(PULLocation) is applied. After that, the time window is generated fixing the time to 1 hour (during the testing phase the window time has been reduced). Finally, once the window was ready the data have been processed as follow: The PULocationID has been kept as original, the number_of_taxi has been calculated iterating along all the records and count them. The date it has been extracted from the __tpep_pickup_datetime__ of the first entry. The hour has been set as the window end time. The hours have been generated in this way in order to speed up the implementation time but a more smart way to set them should be found if the batch analytics requires them.
+    More precisely, the customerstreamapp receives messages from the message broker as string. First, it deserializes them as well as it filters out the data that are not needed for the analytics. Then the keyby(PULLocation) is applied. After that, the time window is generated fixing the time to 1 hour (during the testing phase the window time has been reduced). Finally, once the window was ready the data have been processed as follows: The PULocationID has been kept as original, the number_of_taxi has been calculated iterating along with all the records and count them. The date it has been extracted from the __tpep_pickup_datetime__ of the first entry. The hour has been set as the window end time. The hours have been generated in this way in order to speed up the implementation time but a more smart way to set them should be found if the batch analytics requires them.
  
     To conclude, the analytics are collected and sent back to the specific queue formatted as a JSON-like string.
 
-3. An example of the analytics are the following:
+3\. An example of the analytics are the following:
 
     ![](analytics.png)
     Figure: Result printed by the customer1consumer
 
-    In addition, following a picture that represent the application working:
+    Also, following a picture that represents the application working:
 
     ![](flink.png)
     Figure: Active customerstreamapp
 
     Testing environment:
 
-    The environment is mainly composed by 4 components: the customer1producer, the message broker, the customerstreammapp1 and the customer1consumer. 
+    The environment is mainly composed of 4 components: the customer1producer, the message broker, the customerstreammapp1 and the customer1consumer. 
 
-    Starting from the data source, the customer1producer read from a CSV file and ingest to the message broker the serialized records. The message broker, during the testing was running locally. On the other hand, the deployment is made using the RabbitMQ as a Service using the CloudAMQP web service. The simulated customerstreamapp has been implemented using Java. During the test an instance of Flink was running locally so that the custmerstreamapp could run on top of it. Once the analytics are computed and pushed back to the message broker, the customer1consumer read the results and print them. 
+    Starting from the data source, the customer1producer read from a CSV file and ingest to the message broker the serialized records. The message broker, during the testing, was running locally. On the other hand, the deployment is made using the RabbitMQ as a Service using the CloudAMQP web service. The simulated customerstreamapp has been implemented using Java. During the test, an instance of Flink was running locally so that the custmerstreamapp could run on top of it. Once the analytics are computed and pushed back to the message broker, the customer1consumer read the results and print them. 
 
+4\. The current implementation cannot deal with wrong words so the customers are responsible for the quality of the data. Right now the system fails each time wrong data are pushed inside the platform. To deal with this problem in the future some checks and exceptions can be implemented on both sides: from the customer as well as from the architecture.
 
-4. 
+5\.The parallelism is managed by Flink that natively supports multi-threading. The parallelism can be set directly from the customerstreamapp using the Flink feature __setParallelism()__ of the __DataStream__ class. Following the application running with 4 clusters:
 
-5.
+![](par4.png)
+Figure: Active Customerstreamapp with set parallelism to 4.
+
+The application as tested with multiple parallelism and it has been shown that the higher the value the lower the performance. The perfect setting is 4. This can be easily explained since Flink was running locally, as a result, the resources of the CPU were limited to the 4-cores. This lead to the fact that in each core can be run only one stream a time. Hence, where the parallelism was set with higher values the performances were not decreasing. This is manually due to with higher values of parellelism the number of organization messages inside the cluster increase, thus, the overall performances decrease.
+
+   To point out that some configuration need to be change to allow the parallelism.
+
 ## Part 3 - Connection
 1. The figures in question 1.5) already show the analytics ingestion process. The main idea is to save the result from the __customerstreamapp__ to files CSV first, than when some file size is satisfied the files is forwarded to a customer ingestion application that read the csv file, process the data and ingest them in the final sink. This solution have been chosen since I think that as the customer was already taking caring of the analytics part implementing the __customerstreamapp__, it should be also on him the analytic ingestion app implementation. 
 

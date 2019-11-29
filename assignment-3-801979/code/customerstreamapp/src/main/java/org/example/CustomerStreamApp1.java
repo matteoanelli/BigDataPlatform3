@@ -33,7 +33,9 @@ public class CustomerStreamApp1 {
 
         //using flink ParameterTool to parse input parameters
         // final String input_rabbitMQ;
-        final String input_rabbitMQ = "amqp://guest:guest@localhost:5672/";
+        //final String input_rabbitMQ = "amqp://guest:guest@localhost:5672/";
+        final String input_rabbitMQ = "amqp://lglizjgp:ZHTrNmxKUo5sjiTgux_OOvmvSfnJUvao@moose.rmq.cloudamqp.com/lglizjgp";
+
         final String inputQueue = "customer1queue";
         final String outputQueue = "result1";
         // the following is for setting up the execution getExecutionEnvironment
@@ -52,12 +54,12 @@ public class CustomerStreamApp1 {
         //now start with the source of data
 
         final RMQConnectionConfig connectionConfig = new 	RMQConnectionConfig.Builder()
-                .setHost("localhost")
-                .setPort(5672)
-                .setUserName("guest")
-                .setPassword("guest")
-                .setVirtualHost("/")
-                //.setUri(input_rabbitMQ)
+//                .setHost("localhost")
+//                .setPort(5672)
+//                .setUserName("guest")
+//                .setPassword("guest")
+//                .setVirtualHost("/")
+                .setUri(input_rabbitMQ)
                 .build();
 
         RMQSource<String> datasource= new RMQSource(
