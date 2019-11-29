@@ -93,7 +93,7 @@ public class CustomerStreamApp1 {
                 return out;
             }
             // the time window in the proper case should be set at 1 hours (Time.hours(1)). In order to test the system the system the time has been reduced
-        }).keyBy(0).timeWindow(Time.milliseconds(10)).apply(new WindowFunction<Tuple4<Integer, Integer, String, String>, String, Tuple, TimeWindow>() {
+        }).keyBy(0).timeWindow(Time.seconds(1)).apply(new WindowFunction<Tuple4<Integer, Integer, String, String>, String, Tuple, TimeWindow>() {
             @Override
             public void apply(Tuple tuple, TimeWindow timeWindow, Iterable<Tuple4<Integer, Integer, String, String>> iterable, Collector<String> collector) throws Exception {
 

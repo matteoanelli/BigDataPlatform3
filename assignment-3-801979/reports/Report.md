@@ -118,6 +118,32 @@ The output has to be sent to the queue of the customer as well as it might be st
 
 To sum up, the client has a producer that sends to the assigned queue records as massages (serialized) in string format (python RabbitMQ producer), the message broker queue the input, then the customerstreamapp (Java application) consumes the messages, it maps the string message in different field, it filter them then before process the the data are serialized again. it process them and eventually it deserializes and send back as JSON file the analytics to the result queue. Finally, a client consumer (python RabbitMQ consumer) read them. 
 
+2. The main logic for processing records  inside __custoerstreamapp__ in the implementation is to split the stream in logical streams  using the keyby feature provided by Flink besed on the __PULLocation__ field , create a tumbling time window of 1 hour so that the data are grouped in chunks. Furthermore, the number of records for each chunks is calculated. 
+
+    More precisely, the customerstreamapp receives messages from the message broker as string. First it deserialize them as well as it filter out the data that are not needed for the analytics. Then the keyby(PULLocation) is applied. After that, the time window is generated fixing the time to 1 hour (during the testing phase the window time has been reduced). Finally, once the window was ready the data have been processed as follow: The PULocationID has been kept as original, the number_of_taxi has been calculated iterating along all the records and count them. The date it has been extracted from the __tpep_pickup_datetime__ of the first entry. The hour has been set as the window end time. The hours have been generated in this way in order to speed up the implementation time but a more smart way to set them should be found if the batch analytics requires them.
+ 
+    To conclude, the analytics are collected and sent back to the specific queue formatted as a JSON-like string.
+
+3. An example of the analytics are the following:
+
+    ![](analytics.png)
+    Figure: Result printed by the customer1consumer
+
+    In addition, following a picture that represent the application working:
+
+    ![](flink.png)
+    Figure: Active customerstreamapp
+
+    Testing environment:
+
+    The environment is mainly composed by 4 components: the customer1producer, the message broker, the customerstreammapp1 and the customer1consumer. 
+
+    Starting from the data source, the customer1producer read from a CSV file and ingest to the message broker the serialized records. The message broker, during the testing was running locally. On the other hand, the deployment is made using the RabbitMQ as a Service using the CloudAMQP web service. The simulated customerstreamapp has been implemented using Java. During the test an instance of Flink was running locally so that the custmerstreamapp could run on top of it. Once the analytics are computed and pushed back to the message broker, the customer1consumer read the results and print them. 
+
+
+4. 
+
+5.
 ## Part 3 - Connection
 1. The figures in question 1.5) already show the analytics ingestion process. The main idea is to save the result from the __customerstreamapp__ to files CSV first, than when some file size is satisfied the files is forwarded to a customer ingestion application that read the csv file, process the data and ingest them in the final sink. This solution have been chosen since I think that as the customer was already taking caring of the analytics part implementing the __customerstreamapp__, it should be also on him the analytic ingestion app implementation. 
 
