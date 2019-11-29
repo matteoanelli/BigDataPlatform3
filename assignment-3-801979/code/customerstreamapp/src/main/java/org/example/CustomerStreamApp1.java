@@ -34,7 +34,7 @@ public class CustomerStreamApp1 {
         //using flink ParameterTool to parse input parameters
         // final String input_rabbitMQ;
         final String input_rabbitMQ = "amqp://guest:guest@localhost:5672/";
-        final String inputQueue = "customer1app";
+        final String inputQueue = "customer1queue";
         final String outputQueue = "result1";
         // the following is for setting up the execution getExecutionEnvironment
         final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
@@ -92,7 +92,8 @@ public class CustomerStreamApp1 {
                         Tuple4<>(Integer.parseInt(fieldArray[7]),1 , fieldArray[2], fieldArray[2]);
                 return out;
             }
-        }).keyBy(0).timeWindow(Time.hours(1)).apply(new WindowFunction<Tuple4<Integer, Integer, String, String>, String, Tuple, TimeWindow>() {
+            // the time window in the proper case should be set at 1 hours (Time.hours(1)). In order to test the system the system the time has been reduced
+        }).keyBy(0).timeWindow(Time.milliseconds(10)).apply(new WindowFunction<Tuple4<Integer, Integer, String, String>, String, Tuple, TimeWindow>() {
             @Override
             public void apply(Tuple tuple, TimeWindow timeWindow, Iterable<Tuple4<Integer, Integer, String, String>> iterable, Collector<String> collector) throws Exception {
 
@@ -100,7 +101,7 @@ public class CustomerStreamApp1 {
                 Tuple4<Integer,Integer, String, String> event1 = iterator.next();
 
                 int PULocationID = event1.f0;
-                int number_of_taxi = 0;
+                int number_of_taxi = 1;
                 String date = getDate(event1.f2);
                 long hour = timeWindow.getEnd();
 
@@ -112,7 +113,7 @@ public class CustomerStreamApp1 {
                 collector.collect("{\"PULocationID\":"+ Integer.toString(PULocationID) +
                         ", \"number_of_taxi\":" + Integer.toString(number_of_taxi) +
                         ", \"date\":" + date +
-                        ", \"number_of_taxi\":" + Long.toString(hour) +
+                        ", \"hour\":" + Long.toString(hour) +
                         "}");
             }
         });

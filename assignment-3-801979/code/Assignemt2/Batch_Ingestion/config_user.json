@@ -1,0 +1,14 @@
+{
+  "tenants": [{
+    "tenant_id": "tenant1",
+    "password": "gVsy5v5tibL4q4er",
+    "MONGO_URL": "mongodb+srv://tennant1:gVsy5v5tibL4q4er@mysimbdp-coredms-novzr.mongodb.net/test?retryWrites=true&w=majority"
+  },
+    {
+    "tenant_id": "tenant2",
+      "password": "Rm2U0c1OtW3hsZWn",
+    "MONGO_URL": "mongodb+srv://tennant2:Rm2U0c1OtW3hsZWn@mysimbdp-coredms-novzr.mongodb.net/test?retryWrites=true&w=majority"
+  }
+  ]
+}
+
