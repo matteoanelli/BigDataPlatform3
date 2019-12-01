@@ -19,11 +19,8 @@ ii) Batch analytics that, given the output from the streaming analytics can prov
 
 i) The analytics is handled in keyed data streams, the records stream is keyed by __PULocationID__ dividing the data in different logical streams so that a tumbling window can be set. Furthermore, the keyed streams allow the computation to be performed in parallel in multiple tasks since each keyed stream can be processed independently. 
 
-ii) In our use case, the analytics are estimated values, they do not need to be extremely precise as well as the scenario is not a critic. So, it is not needed that the system check for missing messages. As a result, the selected delivery guarantee is  __at-least-once__ which means for each messages handed to the system potentially multiple attempts are made at delivering it, such that at least one succeeds. It imply to keep the tstate at the sending end and having an acknowledgment mechanism at the receiving end. This is easy to implement in our architecture since the connector between implemented RabbitMQ and Flink has already implemented a mechanism to manage it.
+ii) In our use case, the analytics are estimated values, they do not need to be extremely precise as well as the scenario is not a critic one. So, it is not needed that the system check for missing messages. As a result, the selected delivery guarantee is  __at-most-once__ which means for each message handed to the system, that message is delivered zero or one times. This was also chosen since it has the highest performance and the least implementation overhead because it can be done without keeping states. On the other hand, __at-least-once__ and __exactly-once__ could be suitable and the connector supports them as well. However, as mentioned before, the application is not critic as well as the analytics is an estimated value, As a result, the exactly-once and the at-least-once guarantee are not necessary.
 
-  To point out, __at-most-once__ and __exactly-once__ could be suitable and the connector supports them as well. 
-  The at-most-once guarantees higher performance but it is not be chosen in order to make the architecture more robust and the analytics more precise. On the other hand, as mentioned before, the application is not critic as well as the analytics is an estimated value, as a result, the exactly-once is not necessary.
-  
 3\) 
 In the original dataset, the time where the data are sent is a bit tricky since they are sent based on the arrival time as well as they can also be delayed since the record, in some case of connection issue, can be held in the vehicle memory before actually being sent to the vendor. As a result, the time that should be assigned to the sources is the __tpep_dropoff_datetime__ since it is when the event/record has been actually generated and sent to the specific vendor.
 
@@ -122,27 +119,27 @@ To sum up, the client has a producer that sends to the assigned queue records as
 
 2\. The main logic for processing records inside __custoerstreamapp__ in the implementation is to split the stream in logical streams using the keyby feature provided by Flink based on the __PULLocation__ field, create a tumbling time window of 1 hour so that the data are grouped in chunks. Furthermore, the number of records for each chunks is calculated. 
 
-    More precisely, the customerstreamapp receives messages from the message broker as string. First, it deserializes them as well as it filters out the data that are not needed for the analytics. Then the keyby(PULLocation) is applied. After that, the time window is generated fixing the time to 1 hour (during the testing phase the window time has been reduced). Finally, once the window was ready the data have been processed as follows: The PULocationID has been kept as original, the number_of_taxi has been calculated iterating along with all the records and count them. The date it has been extracted from the __tpep_pickup_datetime__ of the first entry. The hour has been set as the window end time. The hours have been generated in this way in order to speed up the implementation time but a more smart way to set them should be found if the batch analytics requires them.
+   More precisely, the customerstreamapp receives messages from the message broker as string. First, it deserializes them as well as it filters out the data that are not needed for the analytics. Then the keyby(PULLocation) is applied. After that, the time window is generated fixing the time to 1 hour (during the testing phase the window time has been reduced). Finally, once the window was ready the data have been processed as follows: The PULocationID has been kept as original, the number_of_taxi has been calculated iterating along with all the records and count them. The date it has been extracted from the __tpep_pickup_datetime__ of the first entry. The hour has been set as the window end time. The hours have been generated in this way in order to speed up the implementation time but a more smart way to set them should be found if the batch analytics requires them.
  
-    To conclude, the analytics are collected and sent back to the specific queue formatted as a JSON-like string.
+   To conclude, the analytics are collected and sent back to the specific queue formatted as a JSON-like string.
 
 3\. An example of the analytics are the following:
 
-    ![](analytics.png)
-    Figure: Result printed by the customer1consumer
+   ![](analytics.png)
+   Figure: Result printed by the customer1consumer
 
-    Also, following a picture that represents the application working:
+   Also, following a picture that represents the application working:
 
-    ![](flink.png)
-    Figure: Active customerstreamapp
+   ![](flink.png)
+   Figure: Active customerstreamapp
 
-    Testing environment:
+   Testing environment:
 
-    The environment is mainly composed of 4 components: the customer1producer, the message broker, the customerstreammapp1 and the customer1consumer. 
+   The environment is mainly composed of 4 components: the customer1producer, the message broker, the customerstreammapp1 and the customer1consumer. 
 
-    Starting from the data source, the customer1producer read from a CSV file and ingest to the message broker the serialized records. The message broker, during the testing, was running locally. On the other hand, the deployment is made using the RabbitMQ as a Service using the CloudAMQP web service. The simulated customerstreamapp has been implemented using Java. During the test, an instance of Flink was running locally so that the custmerstreamapp could run on top of it. Once the analytics are computed and pushed back to the message broker, the customer1consumer read the results and print them. 
+   Starting from the data source, the customer1producer read from a CSV file and ingest to the message broker the serialized records. The message broker, during the testing, was running locally. On the other hand, the deployment is made using the RabbitMQ as a Service using the CloudAMQP web service. The simulated customerstreamapp has been implemented using Java. During the test, an instance of Flink was running locally so that the custmerstreamapp could run on top of it. Once the analytics are computed and pushed back to the message broker, the customer1consumer read the results and print them. 
 
-4\. The current implementation cannot deal with wrong words so the customers are responsible for the quality of the data. Right now the system fails each time wrong data are pushed inside the platform. To deal with this problem in the future some checks and exceptions can be implemented on both sides: from the customer as well as from the architecture.
+4\. The current implementation deal with wrong input inside the __custmerstreamapp__ implemented. It just checks if the message that it receives contains the same amount of field that the application actually expects. When the input is not as expected the records are not taken into account for the analytics, the application simply discard them. This can be reasonable since the analytics is an expected value so that results can be not strictly precise as well as the scenario is not critical. Besides, in the implemented architecture, the customers are responsible for the quality of the data. Right now the implemented check is just a basic control. To deal with this problem in the future some checks and exceptions can be implemented on both sides: from the customer as well as from the architecture.
 
 5\.The parallelism is managed by Flink that natively supports multi-threading. The parallelism can be set directly from the customerstreamapp using the Flink feature __setParallelism()__ of the __DataStream__ class. Following the application running with 4 clusters:
 

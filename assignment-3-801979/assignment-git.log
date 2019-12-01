@@ -1,2 +1,59 @@
-the content of this file should be the output of the log of your own git project for this assignment
-using git log command to export your git log
+commit a72f671537d9dd9514f4084f9a983d6fd27fb191
+Author: matteo anelli <matteo.anelli@studenti.unitn.it>
+Date:   Fri Nov 29 09:31:36 2019 +0200
+
+    Final commit, pre delivery
+
+commit 29fe32a7a7fe39f92bc93e90dfc4e0281ce43696
+Author: matteo anelli <matteo.anelli@studenti.unitn.it>
+Date:   Fri Nov 29 07:25:32 2019 +0200
+
+    Part 2 question 1 ,2 ,3: OK
+
+commit d17933a8afba181065de56aff432eb5615e90c57
+Author: matteo anelli <matteo.anelli@studenti.unitn.it>
+Date:   Fri Nov 29 05:45:09 2019 +0200
+
+    Customer cunsumer implemented and system tested: OK
+
+commit 92e326cc55c45079ce141a3ad6652a619678119d
+Author: matteo anelli <matteo.anelli@studenti.unitn.it>
+Date:   Fri Nov 29 04:11:25 2019 +0200
+
+    Customer Stream app implemented
+
+commit 85b971a248dda1ee1501fb1b2fd06488bd44267c
+Author: matteo anelli <matteo.anelli@studenti.unitn.it>
+Date:   Fri Nov 29 04:08:15 2019 +0200
+
+    Customer Stream app implemented
+
+commit e3a772c0a7b79483f94e7aa126ae6db2e91c8b03
+Author: matteo anelli <matteo.anelli@studenti.unitn.it>
+Date:   Fri Nov 29 03:57:36 2019 +0200
+
+    Customer Stream app implemented
+
+commit f82d785f36891cfb2b1c9982891e15b5dddf74d0
+Author: matteo anelli <matteo.anelli@studenti.unitn.it>
+Date:   Thu Nov 28 23:14:27 2019 +0200
+
+    Imported customer app template
+
+commit be74ba1b4a95953e0da9af80007b038440f05669
+Author: matteo anelli <matteo.anelli@studenti.unitn.it>
+Date:   Thu Nov 28 21:09:57 2019 +0200
+
+    Part 1 and Part 3 report done
+
+commit f8b3eb1e24b3f99e2215ae9a2959cc1ce4d273d1
+Author: matteo anelli <matteo.anelli@studenti.unitn.it>
+Date:   Wed Nov 27 09:32:56 2019 +0200
+
+    first question
+
+commit 83c34dc9829f014d0b3b934bf64b79a9239e7218
+Author: matteo anelli <matteo.anelli@studenti.unitn.it>
+Date:   Tue Nov 26 20:21:40 2019 +0200
+
+    First commit

@@ -9,6 +9,7 @@ The dataset has been renamed and it has to be placed inside the data directory a
 ```
 assignment-3-801979/data/2018_Yellow_Taxi.csv
 ```
+Moreover, the header should be removed before start processing it.
 
 As second step all the requirement can be imported.
 ```

@@ -1,5 +1,6 @@
 package org.example;
 
+import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.common.serialization.SimpleStringSchema;
 import org.apache.flink.api.java.tuple.Tuple;
@@ -85,17 +86,17 @@ public class CustomerStreamApp1 {
 
         env.setStreamTimeCharacteristic(TimeCharacteristic.ProcessingTime);
 
-        SingleOutputStreamOperator<String> mapStr = datastream.map(new MapFunction<String, Tuple4<Integer, Integer, String, String>>() {
+        SingleOutputStreamOperator<String> mapStr = datastream.flatMap(new FlatMapFunction<String, Tuple4<Integer, Integer, String, String>>() {
             @Override
-            public Tuple4<Integer, Integer, String, String> map(String s) throws Exception {
+            public void flatMap(String s, Collector<Tuple4<Integer, Integer, String, String>> out) throws Exception {
 
                 String[] fieldArray = s.split(",");
-                Tuple4<Integer, Integer, String, String> out = new
-                        Tuple4<>(Integer.parseInt(fieldArray[7]),1 , fieldArray[2], fieldArray[2]);
-                return out;
+                if(fieldArray.length == 17){
+                    out.collect(new Tuple4<Integer, Integer, String, String>(Integer.parseInt(fieldArray[7]),1 , fieldArray[2], fieldArray[2]));
+                }
             }
             // the time window in the proper case should be set at 1 hours (Time.hours(1)). In order to test the system the system the time has been reduced
-        }).keyBy(0).timeWindow(Time.seconds(1)).apply(new WindowFunction<Tuple4<Integer, Integer, String, String>, String, Tuple, TimeWindow>() {
+        }).keyBy(0).timeWindow(Time.seconds(10)).apply(new WindowFunction<Tuple4<Integer, Integer, String, String>, String, Tuple, TimeWindow>() {
             @Override
             public void apply(Tuple tuple, TimeWindow timeWindow, Iterable<Tuple4<Integer, Integer, String, String>> iterable, Collector<String> collector) throws Exception {
 
