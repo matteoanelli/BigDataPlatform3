@@ -1,8 +1,9 @@
 # Consumer Deamon that listen from rabbit and ingest data
 import pika, os, json, sys
 
-
-url = 'amqp://lglizjgp:ZHTrNmxKUo5sjiTgux_OOvmvSfnJUvao@moose.rmq.cloudamqp.com/lglizjgp'
+# Connection to CloudAMQP service
+url = CLOUDAMQP_URL
+# local testing
 # url = 'amqp://guest:guest@localhost/'
 params = pika.URLParameters(url)
 connection = pika.BlockingConnection(params)

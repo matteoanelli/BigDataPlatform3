@@ -1,4 +1,4 @@
-Instruction for deplyment
+Instruction for deployment
 =====================
 
 The project have been developed in python and Java. Be sure to use version 3.6+ and Java 8+. Moreover Maven should be installed as well as 

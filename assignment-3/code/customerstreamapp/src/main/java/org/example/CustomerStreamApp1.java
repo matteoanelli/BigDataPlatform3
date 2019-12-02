@@ -32,10 +32,11 @@ public class CustomerStreamApp1 {
 
     public static void main(String[] args) throws Exception {
 
-        //using flink ParameterTool to parse input parameters
-        // final String input_rabbitMQ;
+        // Using RabbitMQ locally
         //final String input_rabbitMQ = "amqp://guest:guest@localhost:5672/";
-        final String input_rabbitMQ = "amqp://lglizjgp:ZHTrNmxKUo5sjiTgux_OOvmvSfnJUvao@moose.rmq.cloudamqp.com/lglizjgp";
+
+        // Using RabbitMQ as a service
+        final String input_rabbitMQ = CLOUDAMQP_URL;
 
         final String inputQueue = "customer1queue";
         final String outputQueue = "result1";
@@ -44,22 +45,16 @@ public class CustomerStreamApp1 {
         SimpleStringSchema inputSchema =new SimpleStringSchema();
 
         //checkpoint can be used for  different levels of message guarantees
-        // select one of the following modes
-        //final CheckpointingMode checkpointingMode = CheckpointingMode.EXACTLY_ONCE ;
         final CheckpointingMode checkpointingMode = CheckpointingMode.AT_LEAST_ONCE;
-        //env.enableCheckpointing(1000*60, checkpointingMode);
-        // define the event time
-        //env.setStreamTimeCharacteristic(TimeCharacteristic.ProcessingTime);
-        //env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
-        //if using EventTime, then we need to assignTimestampsAndWatermarks
-        //now start with the source of data
 
         final RMQConnectionConfig connectionConfig = new 	RMQConnectionConfig.Builder()
+//      Uncomment if using RabbitMQ locally
 //                .setHost("localhost")
 //                .setPort(5672)
 //                .setUserName("guest")
 //                .setPassword("guest")
 //                .setVirtualHost("/")
+//      Comment next line if using RabbitMQ as a service
                 .setUri(input_rabbitMQ)
                 .build();
 

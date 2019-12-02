@@ -4,8 +4,12 @@ from time import sleep
 import csv
 from datetime import datetime
 
+# Using Rabbit running locally
+
 # RABBITMQ_URI = 'amqp://guest:guest@localhost/'
-RABBITMQ_URI = 'amqp://lglizjgp:ZHTrNmxKUo5sjiTgux_OOvmvSfnJUvao@moose.rmq.cloudamqp.com/lglizjgp'
+
+# Using rabbit as a service
+RABBITMQ_URI = CLOUDAMQP_URL
 queue = 'customer1queue'
 
 params = pika.URLParameters(RABBITMQ_URI)
