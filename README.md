@@ -1,7 +1,10 @@
 # Assignment Assignment_3 - streaming analytics platform
 
-The project have been developed in python and Java. Be sure to use version 3.6+ and Java 8+. Moreover Maven should be installed as well as 
-Apache Flink 1.9.1+.
+Inside the following folder the final report with the description of the project can be found.
+```
+assignment-3-801979/reports
+```
+The project have been developed in python and Java. Be sure to use version 3.6+ and Java 8+. Furthermore, Maven should be installed as well as Apache Flink 1.9.1+.
 
 Moreover, an environment variable CLOUDAMQP_URL should be set to the CloudAMQP service link connection. As other option, the rabbitMQ can be run locally. This guide assume that the CloudAMQP is used.
 
