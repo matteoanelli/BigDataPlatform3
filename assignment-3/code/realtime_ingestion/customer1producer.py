@@ -1,12 +1,17 @@
 import sys
 import pika
 from time import sleep
-import csv
 from datetime import datetime
 
 # Using Rabbit running locally
 
 # RABBITMQ_URI = 'amqp://guest:guest@localhost/'
+
+'''
+Producer that read the input file and push line by line the records inside the message broker.
+The actual implementation is meant to use rubbitMQ as a service using the CLOUDAMQP service. 
+It aim to simulate a client that interact with the big data platform throughout the message broker.
+'''
 
 # Using rabbit as a service
 RABBITMQ_URI = CLOUDAMQP_URL

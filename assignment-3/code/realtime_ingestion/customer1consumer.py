@@ -1,5 +1,7 @@
-# Consumer Deamon that listen from rabbit and ingest data
 import pika, os, json, sys
+'''
+Consumer de
+'''
 
 # Connection to CloudAMQP service
 url = CLOUDAMQP_URL
