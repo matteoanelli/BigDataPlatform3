@@ -8,7 +8,7 @@ This assignment is part of a collection of 3 assignment of the Big Data Platform
 * [Assignment 3](https://github.com/matteoanelli/BigDataPlatform3) : Analytics [Report](https://github.com/matteoanelli/BigDataPlatform3/blob/master/assignment-3/reports/Report.md)
 
 
-The [Report](https://github.com/matteoanelli/BigDataPlatform/blob/master/assignment-1-801979-master/reports/Report.md) is a full explanation of the project.
+The [Report](https://github.com/matteoanelli/BigDataPlatform3/blob/master/assignment-3/reports/Report.md) is a full explanation of the project.
 
 ### Implemented only the streaming analytics!
 
